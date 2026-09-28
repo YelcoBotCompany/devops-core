@@ -3,10 +3,6 @@ name: Code Analysis Command Router
 on:
   workflow_call:
     inputs:
-      service:
-        description: 'Target service'
-        required: true
-        type: string
       language:
         description: 'Language implementation: dotnet | netframework'
         required: true
