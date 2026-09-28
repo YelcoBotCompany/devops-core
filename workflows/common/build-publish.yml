@@ -1,0 +1,82 @@
+name: Build, Publish, and Upload Artifacts
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        description: 'Language implementation: dotnet | netframework'
+        required: true
+        type: string
+      projects:
+        description: 'JSON array describing the projects to publish'
+        required: true
+        type: string
+      artifacts:
+        description: 'JSON array describing the artifacts to upload'
+        required: false
+        default: '[]'
+        type: string
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build .NET
+        if: ${{ inputs.language == 'dotnet' }}
+        uses: ./templates/dotnet/build.yml
+      - name: Test .NET
+        if: ${{ inputs.language == 'dotnet' }}
+        uses: ./templates/dotnet/test.yml
+      - name: Build .NET Framework
+        if: ${{ inputs.language == 'netframework' }}
+        uses: ./templates/netframework/build.yml
+      - name: Test .NET Framework
+        if: ${{ inputs.language == 'netframework' }}
+        uses: ./templates/netframework/test.yml
+
+  publish-dotnet:
+    if: ${{ inputs.language == 'dotnet' }}
+    needs: build-and-publish
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        project: ${{ fromJSON(inputs.projects) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Publish .NET project - ${{ matrix.project.name }}
+        uses: ./templates/dotnet/publish.yml
+        with:
+          project: ${{ toJSON(matrix.project) }}
+
+  publish-netframework:
+    if: ${{ inputs.language == 'netframework' }}
+    needs: build-and-publish
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        project: ${{ fromJSON(inputs.projects) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Publish .NET Framework project - ${{ matrix.project.name }}
+        uses: ./templates/netframework/publish.yml
+        with:
+          project: ${{ toJSON(matrix.project) }}
+
+  upload-artifacts:
+    needs: [publish-dotnet, publish-netframework]
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        artifact: ${{ fromJSON(inputs.artifacts) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Upload artifact - ${{ matrix.artifact.name }}
+        uses: ./templates/artifact/upload.yml
+        with:
+          artifact-name: ${{ matrix.artifact.name }}
+          path: ${{ matrix.artifact.path }}

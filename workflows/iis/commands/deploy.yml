@@ -18,75 +18,15 @@ on:
 				type: string
 
 jobs:
-	build-and-publish:
-		runs-on: windows-latest
-		steps:
-			- name: Checkout repository
-				uses: actions/checkout@v4
-
-			- name: Build .NET
-				if: ${{ inputs.language == 'dotnet' }}
-				uses: ./templates/dotnet/build.yml
-
-			- name: Test .NET
-				if: ${{ inputs.language == 'dotnet' }}
-				uses: ./templates/dotnet/test.yml
-
-			- name: Build .NET Framework
-				if: ${{ inputs.language == 'netframework' }}
-				uses: ./templates/netframework/build.yml
-
-			- name: Test .NET Framework
-				if: ${{ inputs.language == 'netframework' }}
-				uses: ./templates/netframework/test.yml
-
-	publish-dotnet:
-		if: ${{ inputs.language == 'dotnet' }}
-		needs: build-and-publish
-		runs-on: windows-latest
-		strategy:
-			matrix:
-				project: ${{ fromJSON(inputs.projects) }}
-		steps:
-			- name: Checkout repository
-				uses: actions/checkout@v4
-			- name: Publish .NET project - ${{ matrix.project.name }}
-				uses: ./templates/dotnet/publish.yml
-				with:
-					project: ${{ toJSON(matrix.project) }}
-
-	publish-netframework:
-		if: ${{ inputs.language == 'netframework' }}
-		needs: build-and-publish
-		runs-on: windows-latest
-		strategy:
-			matrix:
-				project: ${{ fromJSON(inputs.projects) }}
-		steps:
-			- name: Checkout repository
-				uses: actions/checkout@v4
-			- name: Publish .NET Framework project - ${{ matrix.project.name }}
-				uses: ./templates/netframework/publish.yml
-				with:
-					project: ${{ toJSON(matrix.project) }}
-
-	upload-artifacts:
-		needs: [publish-dotnet, publish-netframework]
-		runs-on: windows-latest
-		strategy:
-			matrix:
-				artifact: ${{ fromJSON(inputs.artifacts) }}
-		steps:
-			- name: Checkout repository
-				uses: actions/checkout@v4
-			- name: Upload artifact - ${{ matrix.artifact.name }}
-				uses: ./templates/artifact/upload.yml
-				with:
-					artifact-name: ${{ matrix.artifact.name }}
-					path: ${{ matrix.artifact.path }}
+	build-publish:
+		uses: ./workflows/common/build-publish.yml
+		with:
+			language: ${{ inputs.language }}
+			projects: ${{ inputs.projects }}
+			artifacts: ${{ inputs.artifacts }}
 
 	deploy:
-		needs: [build-and-publish, publish-dotnet, publish-netframework, upload-artifacts]
+		needs: build-publish
 		runs-on: windows-latest
 		steps:
 			- name: Checkout repository
