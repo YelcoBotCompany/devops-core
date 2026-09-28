@@ -1,0 +1,11 @@
+name: Configure IIS
+
+on:
+  workflow_call:
+
+jobs:
+  checkout:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4

@@ -38,7 +38,7 @@ on:
 jobs:
   iis:
     if: ${{ inputs.service == 'iis' }}
-    uses: ./workflows/iis/main.yml
+    uses: YelcoBotCompany/devops-core/.github/workflows/iis.yml@main
     with:
       service: ${{ inputs.service }}
       language: ${{ inputs.language }}
@@ -48,7 +48,7 @@ jobs:
 
   nuget:
     if: ${{ inputs.service == 'nuget' }}
-    uses: ./workflows/nuget/main.yml
+    uses: YelcoBotCompany/devops-core/.github/workflows/nuget.yml@main
     with:
       service: ${{ inputs.service }}
       language: ${{ inputs.language }}
@@ -58,7 +58,7 @@ jobs:
 
   visual-studio-marketplace:
     if: ${{ inputs.service == 'visual-studio-marketplace' }}
-    uses: ./workflows/visual-studio-marketplace/main.yml
+    uses: YelcoBotCompany/devops-core/.github/workflows/visual-studio-marketplace.yml@main
     with:
       service: ${{ inputs.service }}
       language: ${{ inputs.language }}
@@ -68,7 +68,7 @@ jobs:
 
   code-analysis:
     if: ${{ inputs.service == 'code-analysis' }}
-    uses: ./workflows/code-analysis/main.yml
+    uses: YelcoBotCompany/devops-core/.github/workflows/code-analysis.yml@main
     with:
       language: ${{ inputs.language }}
       command: ${{ inputs.command }}

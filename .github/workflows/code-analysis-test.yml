@@ -16,13 +16,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Build .NET
         if: ${{ inputs.language == 'dotnet' }}
-        uses: ./templates/dotnet/build.yml
+        uses: YelcoBotCompany/devops-core/templates/dotnet/build@main
       - name: Test .NET
         if: ${{ inputs.language == 'dotnet' }}
-        uses: ./templates/dotnet/test.yml
+        uses: YelcoBotCompany/devops-core/templates/dotnet/test@main
       - name: Build .NET Framework
         if: ${{ inputs.language == 'netframework' }}
-        uses: ./templates/netframework/build.yml
+        uses: YelcoBotCompany/devops-core/templates/netframework/build@main
       - name: Test .NET Framework
         if: ${{ inputs.language == 'netframework' }}
-        uses: ./templates/netframework/test.yml
+        uses: YelcoBotCompany/devops-core/templates/netframework/test@main

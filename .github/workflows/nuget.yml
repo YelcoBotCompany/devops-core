@@ -1,4 +1,4 @@
-name: Visual Studio Marketplace Command Router
+name: NuGet Command Router
 
 on:
   workflow_call:
@@ -30,7 +30,7 @@ on:
 jobs:
   deploy:
     if: ${{ inputs.command == 'deploy' }}
-    uses: ./workflows/visual-studio-marketplace/commands/deploy.yml
+    uses: YelcoBotCompany/devops-core/.github/workflows/nuget-deploy.yml@main
     with:
       language: ${{ inputs.language }}
       projects: ${{ inputs.projects }}

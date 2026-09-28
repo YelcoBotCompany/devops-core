@@ -30,7 +30,7 @@ on:
 jobs:
   deploy:
     if: ${{ inputs.command == 'deploy' }}
-    uses: ./workflows/iis/commands/deploy.yml
+    uses: YelcoBotCompany/devops-core/.github/workflows/iis-deploy.yml@main
     with:
       language: ${{ inputs.language }}
       projects: ${{ inputs.projects }}
@@ -38,4 +38,4 @@ jobs:
 
   configure:
     if: ${{ inputs.command != 'deploy' }}
-    uses: ./workflows/iis/commands/configure.yml
+    uses: YelcoBotCompany/devops-core/.github/workflows/iis-configure.yml@main

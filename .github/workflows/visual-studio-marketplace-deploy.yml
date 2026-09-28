@@ -1,4 +1,4 @@
-name: NuGet Build and Deploy
+name: Visual Studio Marketplace Build and Deploy
 
 on:
   workflow_call:
@@ -19,7 +19,7 @@ on:
 
 jobs:
   build-publish:
-    uses: ./workflows/common/build-publish.yml
+    uses: YelcoBotCompany/devops-core/.github/workflows/build-publish.yml@main
     with:
       language: ${{ inputs.language }}
       projects: ${{ inputs.projects }}

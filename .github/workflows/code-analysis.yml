@@ -30,6 +30,6 @@ on:
 jobs:
   test:
     if: ${{ inputs.command == 'test' }}
-    uses: ./workflows/code-analysis/commands/test.yml
+    uses: YelcoBotCompany/devops-core/.github/workflows/code-analysis-test.yml@main
     with:
       language: ${{ inputs.language }}
