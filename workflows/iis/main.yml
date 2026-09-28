@@ -1,0 +1,41 @@
+name: IIS Command Router
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: 'Target service'
+        required: true
+        type: string
+      language:
+        description: 'Language implementation: dotnet | netframework'
+        required: true
+        type: string
+      command:
+        description: 'Command to execute: deploy or configure'
+        required: false
+        default: ''
+        type: string
+      projects:
+        description: 'JSON array describing the projects'
+        required: true
+        default: '[]'
+        type: string
+      artifacts:
+        description: 'JSON array describing the artifacts to upload'
+        required: false
+        default: '[]'
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ inputs.command == 'deploy' }}
+    uses: ./workflows/iis/commands/deploy.yml
+    with:
+      language: ${{ inputs.language }}
+      projects: ${{ inputs.projects }}
+      artifacts: ${{ inputs.artifacts }}
+
+  configure:
+    if: ${{ inputs.command != 'deploy' }}
+    uses: ./workflows/iis/commands/configure.yml

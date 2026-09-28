@@ -1,0 +1,31 @@
+name: '.NET Framework Test Action'
+description: 'Tests one .NET Framework project described by a JSON object'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup VSTest
+      uses: microsoft/setup-vstest@v2
+
+    - name: Setup NuGet CLI
+      uses: nuget/setup-nuget@v2
+
+    - name: Restore NuGet Packages
+      shell: cmd
+      run: nuget restore "${{ vars.SOLUTION }}"
+
+    - name: Build test solution
+      shell: cmd
+      run: >-
+        msbuild "${{ vars.SOLUTION }}"
+        /p:Configuration="${{ vars.CONFIGURATION || 'Release' }}"
+        /p:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"
+
+    - name: Run VSTest
+      shell: cmd
+      run: >-
+        vstest.console.exe "**\*Test*.dll"
+        /Platform:"${{ vars.VSTEST_PLATFORM || 'x64' }}"

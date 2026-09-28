@@ -1,0 +1,53 @@
+name: '.NET Framework Publish Action'
+description: 'Publishes one .NET Framework project according to its project type'
+
+inputs:
+  project:
+    description: 'JSON object describing one project to publish'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup NuGet CLI
+      uses: nuget/setup-nuget@v2
+
+    - name: Restore NuGet Packages
+      shell: cmd
+      run: nuget restore "${{ fromJSON(inputs.project).projectPattern }}"
+
+    - name: Publish Web project - ${{ fromJSON(inputs.project).name }}
+      if: ${{ fromJSON(inputs.project).type == 'WEB' }}
+      shell: cmd
+      run: >-
+        msbuild "${{ fromJSON(inputs.project).projectPattern }}"
+        /p:Configuration="${{ vars.CONFIGURATION || 'Release' }}"
+        /p:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"
+        "/t:Build;_CopyWebApplication"
+        /p:OutDir="${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
+        /p:OutputPath="${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
+        /p:WebProjectOutputDir="${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
+        /p:OverwriteReadOnlyFiles=true
+
+    - name: Build App project - ${{ fromJSON(inputs.project).name }}
+      if: ${{ fromJSON(inputs.project).type == 'APP' || fromJSON(inputs.project).type == 'CLI' }}
+      shell: cmd
+      run: >-
+        msbuild "${{ fromJSON(inputs.project).projectPattern }}"
+        /p:Configuration="${{ vars.CONFIGURATION || 'Release' }}"
+        /p:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"
+        /t:Build
+        /p:OutDir="${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
+        /p:OutputPath="${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
+        /p:OverwriteReadOnlyFiles=true
+
+    - name: Pack NuGet project - ${{ fromJSON(inputs.project).name }}
+      if: ${{ fromJSON(inputs.project).type == 'NUGET' }}
+      shell: cmd
+      run: >-
+        nuget pack "${{ fromJSON(inputs.project).projectPattern }}"
+        -OutputDirectory "${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
+        -Properties Configuration="${{ vars.CONFIGURATION || 'Release' }}"

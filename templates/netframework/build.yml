@@ -1,0 +1,22 @@
+name: '.NET Framework Build Action'
+description: 'Builds one .NET Framework project described by a JSON object'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup NuGet CLI
+      uses: nuget/setup-nuget@v2
+
+    - name: Restore NuGet Packages
+      shell: cmd
+      run: nuget restore "${{ vars.SOLUTION }}"
+
+    - name: Build solution
+      shell: cmd
+      run: >-
+        msbuild "${{ vars.SOLUTION }}"
+        /p:Configuration="${{ vars.CONFIGURATION || 'Release' }}"
+        /p:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"

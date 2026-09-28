@@ -1,0 +1,14 @@
+name: '.NET Core Test Action'
+description: 'Runs .NET Core unit tests'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Test Solution
+      shell: bash
+      run: |
+        dotnet test \
+          "${{ vars.SOLUTION }}" \
+          --configuration "${{ vars.CONFIGURATION || 'Release' }}" \
+          --property:Platform="${{ vars.PLATFORM || 'AnyCPU' }}" \
+          --verbosity normal

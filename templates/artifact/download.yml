@@ -1,0 +1,31 @@
+name: Download Artifact
+description: Downloads a workflow artifact
+
+inputs:
+  artifact-name:
+    description: Artifact name
+    required: true
+  path:
+    description: Relative path where the artifact will be downloaded
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Download ZIP artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ runner.temp }}/${{ inputs.artifact-name }}
+
+    - name: Extract ZIP to target path
+      shell: bash
+      run: |
+        TARGET_PATH="${{ inputs.path }}"
+        case "$TARGET_PATH" in
+          /*) ;;
+          *) TARGET_PATH="${{ github.workspace }}/$TARGET_PATH" ;;
+        esac
+
+        mkdir -p "$TARGET_PATH"
+        unzip -oq "${{ runner.temp }}/${{ inputs.artifact-name }}/${{ inputs.artifact-name }}.zip" -d "$TARGET_PATH"

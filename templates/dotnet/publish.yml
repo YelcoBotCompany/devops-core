@@ -1,0 +1,63 @@
+name: '.NET Core Publish Action'
+description: 'Publishes one .NET project according to its project type'
+
+inputs:
+  project:
+    description: 'JSON object describing one project to publish'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Restore MAUI workloads
+      if: ${{ fromJSON(inputs.project).type == 'MAUI' }}
+      shell: pwsh
+      run: dotnet workload restore "${{ fromJSON(inputs.project).projectPattern }}"
+
+    - name: Publish CLI, Web, or App project - ${{ fromJSON(inputs.project).name }}
+      if: ${{ contains(fromJSON('[''CLI'',''WEB'',''APP'']'), fromJSON(inputs.project).type) }}
+      shell: pwsh
+      run: |
+        $publishArgs = @(
+          "${{ fromJSON(inputs.project).projectPattern }}",
+          '--configuration', "${{ vars.CONFIGURATION || 'Release' }}",
+          '--output', "${{ fromJSON(inputs.project).outputPath }}",
+          "/p:PublishReadyToRun=${{ fromJSON(inputs.project).publishReadyToRun }}",
+          "/p:PublishSingleFile=${{ fromJSON(inputs.project).publishSingleFile }}",
+          "/p:SelfContained=${{ fromJSON(inputs.project).publishSelfContained }}",
+          "/p:RuntimeIdentifier=${{ fromJSON(inputs.project).publishPlatform }}"
+        )
+        dotnet publish @publishArgs
+
+    - name: Publish MAUI project - ${{ fromJSON(inputs.project).name }}
+      if: ${{ fromJSON(inputs.project).type == 'MAUI' }}
+      shell: pwsh
+      run: |
+        $publishArgs = @(
+          "${{ fromJSON(inputs.project).projectPattern }}",
+          '--configuration', "${{ vars.CONFIGURATION || 'Release' }}",
+          '--output', "${{ fromJSON(inputs.project).outputPath }}",
+          "/p:PublishReadyToRun=${{ fromJSON(inputs.project).publishReadyToRun }}",
+          "/p:PublishSingleFile=${{ fromJSON(inputs.project).publishSingleFile }}",
+          "/p:SelfContained=${{ fromJSON(inputs.project).publishSelfContained }}",
+          "/p:RuntimeIdentifier=${{ fromJSON(inputs.project).publishPlatform }}"
+        )
+        dotnet publish @publishArgs
+
+    - name: Build VSIX project - ${{ fromJSON(inputs.project).name }}
+      if: ${{ fromJSON(inputs.project).type == 'VSIX' }}
+      shell: pwsh
+      run: |
+        dotnet build `
+          "${{ fromJSON(inputs.project).projectPattern }}" `
+          --configuration "${{ vars.CONFIGURATION || 'Release' }}" `
+          --output "${{ fromJSON(inputs.project).outputPath }}"
+
+    - name: Pack NuGet project - ${{ fromJSON(inputs.project).name }}
+      if: ${{ fromJSON(inputs.project).type == 'NUGET' }}
+      shell: pwsh
+      run: |
+        dotnet pack `
+          "${{ fromJSON(inputs.project).projectPattern }}" `
+          --configuration "${{ vars.CONFIGURATION || 'Release' }}" `
+          --output "${{ fromJSON(inputs.project).outputPath }}"

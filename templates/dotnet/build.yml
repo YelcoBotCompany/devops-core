@@ -1,0 +1,32 @@
+name: '.NET Core Build Action'
+description: 'Builds .NET Core solution'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+
+    - name: Setup NuGet CLI
+      uses: NuGet/setup-nuget@v2
+
+    - name: Restore NuGet packages
+      shell: bash
+      run: dotnet restore "${{ vars.SOLUTION }}"
+
+    - name: Clean solution
+      shell: bash
+      run: |
+        dotnet clean \
+          "${{ vars.SOLUTION }}" \
+          --configuration "${{ vars.CONFIGURATION || 'Release' }}" \
+          --property:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"
+
+    - name: Build solution
+      shell: bash
+      run: |
+        dotnet build \
+          "${{ vars.SOLUTION }}" \
+          --configuration "${{ vars.CONFIGURATION || 'Release' }}" \
+          --no-restore \
+          --property:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"

@@ -1,0 +1,34 @@
+name: Upload Artifact
+description: Uploads a workflow artifact
+
+inputs:
+  artifact-name:
+    description: Artifact name
+    required: true
+  path:
+    description: Relative path to the artifact
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Create ZIP in temporary directory
+      shell: bash
+      run: |
+        SOURCE_PATH="${{ inputs.path }}"
+        case "$SOURCE_PATH" in
+          /*) ;;
+          *) SOURCE_PATH="${{ github.workspace }}/$SOURCE_PATH" ;;
+        esac
+
+        ZIP_PATH="${{ runner.temp }}/${{ inputs.artifact-name }}.zip"
+        mkdir -p "${{ runner.temp }}"
+        rm -f "$ZIP_PATH"
+        cd "$SOURCE_PATH"
+        zip -qr "$ZIP_PATH" .
+
+    - name: Upload ZIP artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ runner.temp }}/${{ inputs.artifact-name }}.zip
