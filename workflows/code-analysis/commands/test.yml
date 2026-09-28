@@ -1,0 +1,28 @@
+name: Build, Publish, and Upload Artifacts
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        description: 'Language implementation: dotnet | netframework'
+        required: true
+        type: string
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build .NET
+        if: ${{ inputs.language == 'dotnet' }}
+        uses: ./templates/dotnet/build.yml
+      - name: Test .NET
+        if: ${{ inputs.language == 'dotnet' }}
+        uses: ./templates/dotnet/test.yml
+      - name: Build .NET Framework
+        if: ${{ inputs.language == 'netframework' }}
+        uses: ./templates/netframework/build.yml
+      - name: Test .NET Framework
+        if: ${{ inputs.language == 'netframework' }}
+        uses: ./templates/netframework/test.yml

@@ -26,15 +26,9 @@ jobs:
       - name: Build .NET
         if: ${{ inputs.language == 'dotnet' }}
         uses: ./templates/dotnet/build.yml
-      - name: Test .NET
-        if: ${{ inputs.language == 'dotnet' }}
-        uses: ./templates/dotnet/test.yml
       - name: Build .NET Framework
         if: ${{ inputs.language == 'netframework' }}
         uses: ./templates/netframework/build.yml
-      - name: Test .NET Framework
-        if: ${{ inputs.language == 'netframework' }}
-        uses: ./templates/netframework/test.yml
 
   publish-dotnet:
     if: ${{ inputs.language == 'dotnet' }}

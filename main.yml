@@ -6,12 +6,13 @@ name: DevOps Core Main Orchestrator
 # | iis                       | dotnet, netframework   | deploy, configure   |
 # | nuget                     | dotnet, netframework   | deploy              |
 # | visual-studio-marketplace | dotnet, netframework   | deploy              |
+# | code-analysis             | dotnet, netframework   | test                |
 
 on:
   workflow_call:
     inputs:
       service:
-        description: 'Target service: iis | nuget | visual-studio-marketplace'
+        description: 'Target service: iis | nuget | visual-studio-marketplace | code-analysis'
         required: true
         type: string
       language:
@@ -44,7 +45,6 @@ jobs:
       command: ${{ inputs.command }}
       projects: ${{ inputs.projects }}
       artifacts: ${{ inputs.artifacts }}
-      artifacts: ${{ inputs.artifacts }}
 
   nuget:
     if: ${{ inputs.service == 'nuget' }}
@@ -64,3 +64,11 @@ jobs:
       language: ${{ inputs.language }}
       command: ${{ inputs.command }}
       projects: ${{ inputs.projects }}
+      artifacts: ${{ inputs.artifacts }}
+
+  code-analysis:
+    if: ${{ inputs.service == 'code-analysis' }}
+    uses: ./workflows/code-analysis/main.yml
+    with:
+      language: ${{ inputs.language }}
+      command: ${{ inputs.command }}
