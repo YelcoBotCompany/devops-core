@@ -26,6 +26,11 @@ on:
         required: false
         default: '[]'
         type: string
+      variables:
+        description: 'JSON object with the repository variables'
+        required: false
+        default: '{}'
+        type: string
 
 jobs:
   deploy:
@@ -35,3 +40,4 @@ jobs:
       language: ${{ inputs.language }}
       projects: ${{ inputs.projects }}
       artifacts: ${{ inputs.artifacts }}
+      variables: ${{ inputs.variables }}

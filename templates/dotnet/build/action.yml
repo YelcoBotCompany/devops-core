@@ -1,6 +1,17 @@
 name: '.NET Core Build Action'
 description: 'Builds .NET Core solution'
 
+inputs:
+  solution:
+    description: 'Path to the solution file'
+    required: true
+  configuration:
+    description: 'Build configuration'
+    required: false
+  platform:
+    description: 'Build platform'
+    required: false
+
 runs:
   using: 'composite'
   steps:
@@ -12,21 +23,21 @@ runs:
 
     - name: Restore NuGet packages
       shell: bash
-      run: dotnet restore "${{ vars.SOLUTION }}"
+      run: dotnet restore "${{ inputs.solution }}"
 
     - name: Clean solution
       shell: bash
       run: |
         dotnet clean \
-          "${{ vars.SOLUTION }}" \
-          --configuration "${{ vars.CONFIGURATION || 'Release' }}" \
-          --property:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"
+          "${{ inputs.solution }}" \
+          --configuration "${{ inputs.configuration || 'Release' }}" \
+          --property:Platform="${{ inputs.platform || 'AnyCPU' }}"
 
     - name: Build solution
       shell: bash
       run: |
         dotnet build \
-          "${{ vars.SOLUTION }}" \
-          --configuration "${{ vars.CONFIGURATION || 'Release' }}" \
+          "${{ inputs.solution }}" \
+          --configuration "${{ inputs.configuration || 'Release' }}" \
           --no-restore \
-          --property:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"
+          --property:Platform="${{ inputs.platform || 'AnyCPU' }}"

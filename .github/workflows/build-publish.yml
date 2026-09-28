@@ -16,6 +16,11 @@ on:
         required: false
         default: '[]'
         type: string
+      variables:
+        description: 'JSON object with the repository variables'
+        required: false
+        default: '{}'
+        type: string
 
 jobs:
   build-and-publish:
@@ -26,9 +31,17 @@ jobs:
       - name: Build .NET
         if: ${{ inputs.language == 'dotnet' }}
         uses: YelcoBotCompany/devops-core/templates/dotnet/build@main
+        with:
+          solution: ${{ fromJSON(inputs.variables).SOLUTION }}
+          configuration: ${{ fromJSON(inputs.variables).CONFIGURATION }}
+          platform: ${{ fromJSON(inputs.variables).PLATFORM }}
       - name: Build .NET Framework
         if: ${{ inputs.language == 'netframework' }}
         uses: YelcoBotCompany/devops-core/templates/netframework/build@main
+        with:
+          solution: ${{ fromJSON(inputs.variables).SOLUTION }}
+          configuration: ${{ fromJSON(inputs.variables).CONFIGURATION }}
+          platform: ${{ fromJSON(inputs.variables).PLATFORM }}
 
   publish-dotnet:
     if: ${{ inputs.language == 'dotnet' }}
@@ -44,6 +57,7 @@ jobs:
         uses: YelcoBotCompany/devops-core/templates/dotnet/publish@main
         with:
           project: ${{ toJSON(matrix.project) }}
+          configuration: ${{ fromJSON(inputs.variables).CONFIGURATION }}
 
   publish-netframework:
     if: ${{ inputs.language == 'netframework' }}
@@ -59,6 +73,8 @@ jobs:
         uses: YelcoBotCompany/devops-core/templates/netframework/publish@main
         with:
           project: ${{ toJSON(matrix.project) }}
+          configuration: ${{ fromJSON(inputs.variables).CONFIGURATION }}
+          platform: ${{ fromJSON(inputs.variables).PLATFORM }}
 
   upload-artifacts:
     needs: [publish-dotnet, publish-netframework]

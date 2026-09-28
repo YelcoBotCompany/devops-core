@@ -5,6 +5,12 @@ inputs:
   project:
     description: 'JSON object describing one project to publish'
     required: true
+  configuration:
+    description: 'Build configuration'
+    required: false
+  platform:
+    description: 'Build platform'
+    required: false
 
 runs:
   using: 'composite'
@@ -24,8 +30,8 @@ runs:
       shell: cmd
       run: >-
         msbuild "${{ fromJSON(inputs.project).projectPattern }}"
-        /p:Configuration="${{ vars.CONFIGURATION || 'Release' }}"
-        /p:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"
+        /p:Configuration="${{ inputs.configuration || 'Release' }}"
+        /p:Platform="${{ inputs.platform || 'AnyCPU' }}"
         "/t:Build;_CopyWebApplication"
         /p:OutDir="${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
         /p:OutputPath="${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
@@ -37,8 +43,8 @@ runs:
       shell: cmd
       run: >-
         msbuild "${{ fromJSON(inputs.project).projectPattern }}"
-        /p:Configuration="${{ vars.CONFIGURATION || 'Release' }}"
-        /p:Platform="${{ vars.PLATFORM || 'AnyCPU' }}"
+        /p:Configuration="${{ inputs.configuration || 'Release' }}"
+        /p:Platform="${{ inputs.platform || 'AnyCPU' }}"
         /t:Build
         /p:OutDir="${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
         /p:OutputPath="${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
@@ -50,4 +56,4 @@ runs:
       run: >-
         nuget pack "${{ fromJSON(inputs.project).projectPattern }}"
         -OutputDirectory "${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
-        -Properties Configuration="${{ vars.CONFIGURATION || 'Release' }}"
+        -Properties Configuration="${{ inputs.configuration || 'Release' }}"

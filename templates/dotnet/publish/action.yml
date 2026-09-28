@@ -5,6 +5,9 @@ inputs:
   project:
     description: 'JSON object describing one project to publish'
     required: true
+  configuration:
+    description: 'Build configuration'
+    required: false
 
 runs:
   using: 'composite'
@@ -20,7 +23,7 @@ runs:
       run: |
         $publishArgs = @(
           "${{ fromJSON(inputs.project).projectPattern }}",
-          '--configuration', "${{ vars.CONFIGURATION || 'Release' }}",
+          '--configuration', "${{ inputs.configuration || 'Release' }}",
           '--output', "${{ fromJSON(inputs.project).outputPath }}",
           "/p:PublishReadyToRun=${{ fromJSON(inputs.project).publishReadyToRun }}",
           "/p:PublishSingleFile=${{ fromJSON(inputs.project).publishSingleFile }}",
@@ -35,7 +38,7 @@ runs:
       run: |
         $publishArgs = @(
           "${{ fromJSON(inputs.project).projectPattern }}",
-          '--configuration', "${{ vars.CONFIGURATION || 'Release' }}",
+          '--configuration', "${{ inputs.configuration || 'Release' }}",
           '--output', "${{ fromJSON(inputs.project).outputPath }}",
           "/p:PublishReadyToRun=${{ fromJSON(inputs.project).publishReadyToRun }}",
           "/p:PublishSingleFile=${{ fromJSON(inputs.project).publishSingleFile }}",
@@ -50,7 +53,7 @@ runs:
       run: |
         dotnet build `
           "${{ fromJSON(inputs.project).projectPattern }}" `
-          --configuration "${{ vars.CONFIGURATION || 'Release' }}" `
+          --configuration "${{ inputs.configuration || 'Release' }}" `
           --output "${{ fromJSON(inputs.project).outputPath }}"
 
     - name: Pack NuGet project - ${{ fromJSON(inputs.project).name }}
@@ -59,5 +62,5 @@ runs:
       run: |
         dotnet pack `
           "${{ fromJSON(inputs.project).projectPattern }}" `
-          --configuration "${{ vars.CONFIGURATION || 'Release' }}" `
+          --configuration "${{ inputs.configuration || 'Release' }}" `
           --output "${{ fromJSON(inputs.project).outputPath }}"
