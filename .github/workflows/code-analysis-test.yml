@@ -44,7 +44,4 @@ jobs:
         if: ${{ inputs.language == 'netframework' }}
         uses: YelcoBotCompany/devops-core/templates/netframework/test@main
         with:
-          solution: ${{ fromJSON(inputs.variables).SOLUTION }}
-          configuration: ${{ fromJSON(inputs.variables).CONFIGURATION }}
-          platform: ${{ fromJSON(inputs.variables).PLATFORM }}
           vstest-platform: ${{ fromJSON(inputs.variables).VSTEST_PLATFORM }}

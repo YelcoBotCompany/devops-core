@@ -22,4 +22,5 @@ runs:
           "${{ inputs.solution }}" \
           --configuration "${{ inputs.configuration || 'Release' }}" \
           --property:Platform="${{ inputs.platform || 'AnyCPU' }}" \
+          --no-build \
           --verbosity normal
