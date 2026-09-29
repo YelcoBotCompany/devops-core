@@ -1,4 +1,4 @@
-name: Build, Publish, and Upload Artifacts
+name: Code Analysis Test
 
 on:
   workflow_call:
@@ -14,7 +14,7 @@ on:
         type: string
 
 jobs:
-  build-and-publish:
+  build-and-test:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
