@@ -1,0 +1,30 @@
+name: 'Resolve Path'
+description: 'Resolves an Azure Pipelines style glob (e.g. **\Project.csproj) to a single file path'
+
+inputs:
+  pattern:
+    description: 'Glob pattern relative to the workspace; **\ matches any folder depth'
+    required: true
+
+outputs:
+  path:
+    description: 'Full path of the single file matching the pattern'
+    value: ${{ steps.resolve.outputs.path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Resolve path
+      id: resolve
+      shell: pwsh
+      env:
+        PATTERN: ${{ inputs.pattern }}
+      run: |
+        $like = ('\' + $env:PATTERN.Replace('/', '\').TrimStart('\')).Replace('\**\', '*\')
+        $found = @(Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -File |
+          Where-Object { $_.FullName.Substring($env:GITHUB_WORKSPACE.Length) -like $like })
+        if ($found.Count -ne 1) {
+          Write-Error "Pattern '$env:PATTERN' matched $($found.Count) files: $($found.FullName -join ', ')"
+          exit 1
+        }
+        "path=$($found[0].FullName)" >> $env:GITHUB_OUTPUT

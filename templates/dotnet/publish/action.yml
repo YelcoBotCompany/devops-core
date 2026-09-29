@@ -12,17 +12,23 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Resolve project path
+      id: resolve-project
+      uses: YelcoBotCompany/devops-core/templates/common/resolve-path@main
+      with:
+        pattern: ${{ fromJSON(inputs.project).projectPattern }}
+
     - name: Restore MAUI workloads
       if: ${{ fromJSON(inputs.project).type == 'MAUI' }}
       shell: pwsh
-      run: dotnet workload restore "${{ fromJSON(inputs.project).projectPattern }}"
+      run: dotnet workload restore "${{ steps.resolve-project.outputs.path }}"
 
     - name: Publish CLI, Web, or App project - ${{ fromJSON(inputs.project).name }}
       if: ${{ contains(fromJSON('[''CLI'',''WEB'',''APP'']'), fromJSON(inputs.project).type) }}
       shell: pwsh
       run: |
         $publishArgs = @(
-          "${{ fromJSON(inputs.project).projectPattern }}",
+          "${{ steps.resolve-project.outputs.path }}",
           '--configuration', "${{ inputs.configuration || 'Release' }}",
           '--output', "${{ fromJSON(inputs.project).outputPath }}",
           "/p:PublishReadyToRun=${{ fromJSON(inputs.project).publishReadyToRun }}",
@@ -37,7 +43,7 @@ runs:
       shell: pwsh
       run: |
         $publishArgs = @(
-          "${{ fromJSON(inputs.project).projectPattern }}",
+          "${{ steps.resolve-project.outputs.path }}",
           '--configuration', "${{ inputs.configuration || 'Release' }}",
           '--output', "${{ fromJSON(inputs.project).outputPath }}",
           "/p:PublishReadyToRun=${{ fromJSON(inputs.project).publishReadyToRun }}",
@@ -52,7 +58,7 @@ runs:
       shell: pwsh
       run: |
         dotnet build `
-          "${{ fromJSON(inputs.project).projectPattern }}" `
+          "${{ steps.resolve-project.outputs.path }}" `
           --configuration "${{ inputs.configuration || 'Release' }}" `
           --output "${{ fromJSON(inputs.project).outputPath }}"
 
@@ -61,6 +67,6 @@ runs:
       shell: pwsh
       run: |
         dotnet pack `
-          "${{ fromJSON(inputs.project).projectPattern }}" `
+          "${{ steps.resolve-project.outputs.path }}" `
           --configuration "${{ inputs.configuration || 'Release' }}" `
           --output "${{ fromJSON(inputs.project).outputPath }}"

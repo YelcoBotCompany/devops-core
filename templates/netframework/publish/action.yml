@@ -15,6 +15,12 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Resolve project path
+      id: resolve-project
+      uses: YelcoBotCompany/devops-core/templates/common/resolve-path@main
+      with:
+        pattern: ${{ fromJSON(inputs.project).projectPattern }}
+
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
@@ -23,13 +29,13 @@ runs:
 
     - name: Restore NuGet Packages
       shell: cmd
-      run: nuget restore "${{ fromJSON(inputs.project).projectPattern }}"
+      run: nuget restore "${{ steps.resolve-project.outputs.path }}"
 
     - name: Publish Web project - ${{ fromJSON(inputs.project).name }}
       if: ${{ fromJSON(inputs.project).type == 'WEB' }}
       shell: cmd
       run: >-
-        msbuild "${{ fromJSON(inputs.project).projectPattern }}"
+        msbuild "${{ steps.resolve-project.outputs.path }}"
         /p:Configuration="${{ inputs.configuration || 'Release' }}"
         /p:Platform="${{ inputs.platform || 'AnyCPU' }}"
         "/t:Build;_CopyWebApplication"
@@ -42,7 +48,7 @@ runs:
       if: ${{ fromJSON(inputs.project).type == 'APP' || fromJSON(inputs.project).type == 'CLI' }}
       shell: cmd
       run: >-
-        msbuild "${{ fromJSON(inputs.project).projectPattern }}"
+        msbuild "${{ steps.resolve-project.outputs.path }}"
         /p:Configuration="${{ inputs.configuration || 'Release' }}"
         /p:Platform="${{ inputs.platform || 'AnyCPU' }}"
         /t:Build
@@ -54,6 +60,6 @@ runs:
       if: ${{ fromJSON(inputs.project).type == 'NUGET' }}
       shell: cmd
       run: >-
-        nuget pack "${{ fromJSON(inputs.project).projectPattern }}"
+        nuget pack "${{ steps.resolve-project.outputs.path }}"
         -OutputDirectory "${{ github.workspace }}/${{ fromJSON(inputs.project).outputPath }}"
         -Properties Configuration="${{ inputs.configuration || 'Release' }}"
