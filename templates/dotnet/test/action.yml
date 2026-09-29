@@ -21,6 +21,6 @@ runs:
         dotnet test \
           "${{ inputs.solution }}" \
           --configuration "${{ inputs.configuration || 'Release' }}" \
-          --property:Platform="${{ inputs.platform || 'AnyCPU' }}" \
+          --property:Platform="${{ inputs.platform || 'Any CPU' }}" \
           --no-build \
           --verbosity normal

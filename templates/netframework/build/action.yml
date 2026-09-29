@@ -30,4 +30,4 @@ runs:
       run: >-
         msbuild "${{ inputs.solution }}"
         /p:Configuration="${{ inputs.configuration || 'Release' }}"
-        /p:Platform="${{ inputs.platform || 'AnyCPU' }}"
+        /p:Platform="${{ inputs.platform || 'Any CPU' }}"
